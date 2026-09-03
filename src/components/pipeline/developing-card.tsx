@@ -27,7 +27,7 @@ export function DevelopingCard({
     >
       <button
         type="button"
-        className="media-frame block w-full overflow-hidden rounded-t-[14px] text-left"
+        className="media-frame block w-full overflow-hidden text-left"
         onClick={onOpen}
         aria-label={`${project.title} concept`}
       >
@@ -45,7 +45,7 @@ export function DevelopingCard({
               {project.title}
             </h3>
             <p className="mt-1">
-              <span className="workshop-label bg-[#d7f0ff] text-[#0f78b0]">
+              <span className="workshop-label bg-[var(--chartreuse)] text-[var(--ink)]">
                 🎨 {status}
               </span>
             </p>
@@ -68,7 +68,7 @@ export function DevelopingCard({
         <p className="line-clamp-2 text-[13px] leading-5 text-muted-foreground">
           {project.concept}
         </p>
-        <div className="flex justify-between text-[12px] font-semibold text-[#0f78b0]">
+        <div className="flex justify-between text-[12px] font-semibold text-[var(--chartreuse-ink)]">
           <span>{formatPercent(project.partsCoverage)} parts</span>
           <span>{formatUsd(project.missingPartsCost)} missing</span>
           <span>{formatHours(project.estimatedHours)}</span>
@@ -79,7 +79,7 @@ export function DevelopingCard({
           </p>
         ) : null}
         <Button
-          className="h-9 bg-stage-developing text-[14px] text-white hover:bg-stage-developing/90"
+          className="h-9 bg-stage-developing text-[14px] text-[var(--ink)] hover:bg-stage-developing/90"
           onClick={onOpen}
         >
           Continue Developing

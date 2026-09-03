@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react"
 import { ChevronDown, Search } from "lucide-react"
 
-import { EmptyStageRoute } from "@/components/branding/MappedMadnessMark"
-import { ScribbleBackdrop } from "@/components/branding/ScribbleBackdrop"
+import {
+  HandwrittenAnnotation,
+  TapeStrip,
+  WaveSketch,
+} from "@/components/studio/primitives"
 import { IdeaDrawer } from "@/components/drawers/idea-drawer"
 import { ProjectDrawer } from "@/components/drawers/project-drawer"
 import { DevelopingCard } from "@/components/pipeline/developing-card"
@@ -208,14 +211,22 @@ export function PipelineBoard() {
             flash={pulseDeveloping}
             empty={
               <div className="lane-empty">
-                <ScribbleBackdrop variant="emptyState" />
-                <EmptyStageRoute className="empty-stage-route" />
-                <p className="font-heading empty-stage-copy text-[16px]">
-                  Nothing on the drawing board yet
+                <TapeStrip placement="tl" />
+                <TapeStrip placement="br" />
+                <p className="sr-only">
+                  Nothing on the drawing board yet. Promote a raw idea when
+                  you’re ready to work it out.
                 </p>
-                <p className="empty-stage-copy mt-1 max-w-[16rem] text-[13px] leading-5 text-muted-foreground">
-                  Promote a raw idea when you’re ready to work it out.
-                </p>
+                <WaveSketch className="mb-3" />
+                <HandwrittenAnnotation className="empty-stage-copy text-[26px]" rotate={-5}>
+                  BREWING SOMETHING GOOD HERE
+                </HandwrittenAnnotation>
+                <HandwrittenAnnotation
+                  className="empty-stage-copy mt-3 max-w-[16rem] text-[18px] text-[var(--chartreuse-ink)]"
+                  rotate={3}
+                >
+                  DRAG IDEAS HERE TO START BUILDING
+                </HandwrittenAnnotation>
               </div>
             }
           >
@@ -284,7 +295,7 @@ export function PipelineBoard() {
           <span>{toast.title}</span>
           <Button
             variant="ghost"
-            className="h-7 text-[13px] text-purple"
+            className="h-7 text-[13px] text-primary"
             onClick={() => {
               demoteProject(toast.undoId)
               setToast(null)

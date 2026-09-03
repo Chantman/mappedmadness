@@ -1,6 +1,6 @@
 const VIEW_W = 1000
-const VIEW_H = 56
-const ROUTE_Y = 32
+const VIEW_H = 64
+const ROUTE_Y = 36
 
 /** Column shares: Raw 42%, Developing 33%, In Production 25%. */
 const NODE_X = {
@@ -9,28 +9,26 @@ const NODE_X = {
   production: VIEW_W * 0.875,
 } as const
 
-function buildWorkflowPath() {
-  const y = ROUTE_Y
-  const raw = NODE_X.ideas
-  const developing = NODE_X.developing
-  const production = NODE_X.production
-
-  return [
-    `M 48 ${y + 2}`,
-    `C 34 ${y - 16} 78 ${y - 20} 96 ${y - 4}`,
-    `C 108 ${y + 8} 74 ${y + 16} 82 ${y + 2}`,
-    `C 88 ${y - 6} 140 ${y} ${raw} ${y}`,
-    `C ${raw + 90} ${y - 10} ${developing - 90} ${y + 9} ${developing} ${y}`,
-    `C ${developing + 70} ${y - 7} ${production - 70} ${y + 5} ${production} ${y}`,
-    `C ${production + 28} ${y - 3} 948 ${y - 12} 972 14`,
-  ].join(" ")
+function buildSegment(
+  start: string,
+  through: string,
+  end: string,
+) {
+  return `${start} ${through} ${end}`
 }
 
-const ROUTE_PATH = buildWorkflowPath()
+const START_PATH = buildSegment(
+  `M 32 ${ROUTE_Y + 4}`,
+  `C 14 ${ROUTE_Y - 22} 68 ${ROUTE_Y - 26} 86 ${ROUTE_Y - 6} C 98 ${ROUTE_Y + 10} 58 ${ROUTE_Y + 20} 70 ${ROUTE_Y + 2} C 80 ${ROUTE_Y - 10} 140 ${ROUTE_Y + 2}`,
+  `${NODE_X.ideas} ${ROUTE_Y}`,
+)
+
+const MID_PATH = `M ${NODE_X.ideas} ${ROUTE_Y} C ${NODE_X.ideas + 70} ${ROUTE_Y - 16} ${NODE_X.developing - 80} ${ROUTE_Y + 14} ${NODE_X.developing} ${ROUTE_Y}`
+
+const END_PATH = `M ${NODE_X.developing} ${ROUTE_Y} C ${NODE_X.developing + 64} ${ROUTE_Y - 10} ${NODE_X.production - 54} ${ROUTE_Y + 11} ${NODE_X.production} ${ROUTE_Y} C ${NODE_X.production + 26} ${ROUTE_Y - 4} 952 ${ROUTE_Y - 16} 978 16`
 
 function buildPromotePath() {
-  const y = ROUTE_Y
-  return `M ${NODE_X.ideas} ${y} C ${NODE_X.ideas + 80} ${y - 12} ${NODE_X.developing - 80} ${y + 8} ${NODE_X.developing} ${y}`
+  return MID_PATH
 }
 
 export function WorkflowRoute({
@@ -57,14 +55,32 @@ export function WorkflowRoute({
             orient="auto"
             markerUnits="userSpaceOnUse"
           >
-            <path d="M1 1.1 10.8 6 1 10.9Z" fill="var(--route-blue)" />
+            <path d="M1 1.1 10.8 6 1 10.9Z" fill="var(--coral)" />
           </marker>
         </defs>
         <path
-          d={ROUTE_PATH}
+          d={START_PATH}
           fill="none"
-          stroke="var(--route-blue)"
-          strokeWidth="3.6"
+          stroke="var(--cobalt)"
+          strokeWidth="3.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          d={MID_PATH}
+          fill="none"
+          stroke="var(--chartreuse)"
+          strokeWidth="3.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          d={END_PATH}
+          fill="none"
+          stroke="var(--coral)"
+          strokeWidth="3.8"
           strokeLinecap="round"
           strokeLinejoin="round"
           vectorEffect="non-scaling-stroke"
@@ -75,8 +91,8 @@ export function WorkflowRoute({
             className="promote-travel"
             d={buildPromotePath()}
             fill="none"
-            stroke="var(--route-blue)"
-            strokeWidth="4.5"
+            stroke="var(--cobalt)"
+            strokeWidth="4.6"
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
             pathLength={1}

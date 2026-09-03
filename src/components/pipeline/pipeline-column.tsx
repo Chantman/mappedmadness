@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 
 import { ScribbleBackdrop } from "@/components/branding/ScribbleBackdrop"
+import { HandwrittenAnnotation, InkStamp } from "@/components/studio/primitives"
 
 export function PipelineColumn({
   stage,
@@ -36,6 +37,14 @@ export function PipelineColumn({
       ) : null}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         {count === 0 ? empty : children}
+        {stage === "production" && count > 0 ? (
+          <div className="relative mt-auto min-h-[8rem] px-3 py-6">
+            <InkStamp className="lane-stamp" label="Ocean in Things" />
+            <HandwrittenAnnotation className="lane-slogan" rotate={-7}>
+              DEPTH DRIVES DESIGN.
+            </HandwrittenAnnotation>
+          </div>
+        ) : null}
       </div>
     </section>
   )

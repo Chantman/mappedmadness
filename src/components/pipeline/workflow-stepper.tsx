@@ -1,6 +1,7 @@
-import { Brain, Cog, Search } from "lucide-react"
+import { Brain, Search, Zap } from "lucide-react"
 
 import { WorkflowRoute } from "@/components/pipeline/workflow-route"
+import { MarkerSwash } from "@/components/studio/primitives"
 
 const stages = [
   {
@@ -8,18 +9,21 @@ const stages = [
     label: "Raw Ideas",
     Icon: Brain,
     countKey: "ideas",
+    tone: "cobalt" as const,
   },
   {
     id: "developing",
     label: "Developing",
     Icon: Search,
     countKey: "developing",
+    tone: "chartreuse" as const,
   },
   {
     id: "production",
     label: "In Production",
-    Icon: Cog,
+    Icon: Zap,
     countKey: "production",
+    tone: "coral" as const,
   },
 ] as const
 
@@ -61,10 +65,10 @@ export function WorkflowStepper({
               data-stage={stage.id}
             >
               <span className="workflow-step-copy">
-                <span className="workflow-step-label">
+                <MarkerSwash tone={stage.tone} className="workflow-step-label">
                   <Icon className="workflow-step-icon" strokeWidth={2.1} />
                   {stage.label}
-                </span>
+                </MarkerSwash>
                 <span className="workflow-step-count">{count}</span>
               </span>
             </li>
@@ -86,7 +90,9 @@ export function WorkflowStepper({
               onClick={() => onSelectLane(stage.id)}
             >
               <span className="workflow-tab-dot" aria-hidden="true" />
-              <span className="workflow-tab-label">{stage.label}</span>
+              <MarkerSwash tone={stage.tone} className="workflow-tab-label">
+                {stage.label}
+              </MarkerSwash>
               <span className="workflow-tab-count">{counts[stage.countKey]}</span>
             </button>
           )

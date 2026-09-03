@@ -4,6 +4,10 @@ import { MappedMadnessMark } from "@/components/branding/MappedMadnessMark"
 import { ScribbleBackdrop } from "@/components/branding/ScribbleBackdrop"
 import { BrandSwitch } from "@/components/brand/brand-switch"
 import { primaryNavItems } from "@/components/layout/nav-items"
+import {
+  HandwrittenAnnotation,
+  SidebarScribbles,
+} from "@/components/studio/primitives"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -37,7 +41,9 @@ export function Sidebar({
       )}
     >
       <ScribbleBackdrop variant="sidebar" />
+      <SidebarScribbles />
       <div className="sidebar-veil" aria-hidden="true" />
+      <span className="sidebar-torn" aria-hidden="true" />
 
       <div className="sidebar-chrome">
         <div
@@ -91,7 +97,24 @@ export function Sidebar({
           })}
         </nav>
 
-        <div className="sidebar-spacer" />
+        <div className="sidebar-spacer relative">
+          {collapsed ? null : (
+            <>
+              <HandwrittenAnnotation
+                className="absolute top-6 left-3 max-w-[210px] text-[17px] text-[#f4eee0]"
+                rotate={-6}
+              >
+                IDEAS → IMPACT → PRODUCTS
+              </HandwrittenAnnotation>
+              <HandwrittenAnnotation
+                className="absolute bottom-4 left-2 max-w-[220px] text-[34px] leading-none"
+                rotate={-8}
+              >
+                MAKE WAVES
+              </HandwrittenAnnotation>
+            </>
+          )}
+        </div>
 
         <div className="sidebar-footer">
           {forceExpanded ? (

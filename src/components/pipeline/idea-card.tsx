@@ -83,7 +83,7 @@ export function IdeaRow({
             {idea.concept}
           </p>
           {!expanded && overflows ? (
-            <span className="mt-1 inline-block text-[12px] font-semibold text-purple">
+            <span className="mt-1 inline-block text-[12px] font-semibold text-primary">
               more
             </span>
           ) : null}
