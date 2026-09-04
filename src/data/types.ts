@@ -133,6 +133,7 @@ export interface Project {
   estimatedHours: number
   estimatedCost: number
   developmentStatus?: DevelopmentStatus
+  newlyPromoted?: boolean
   partsCoverage: number
   missingPartsCost: number
   unresolvedQuestion?: string

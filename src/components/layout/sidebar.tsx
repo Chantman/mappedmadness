@@ -106,12 +106,6 @@ export function Sidebar({
               >
                 IDEAS → IMPACT → PRODUCTS
               </HandwrittenAnnotation>
-              <HandwrittenAnnotation
-                className="absolute bottom-4 left-2 max-w-[220px] text-[34px] leading-none"
-                rotate={-8}
-              >
-                MAKE WAVES
-              </HandwrittenAnnotation>
             </>
           )}
         </div>

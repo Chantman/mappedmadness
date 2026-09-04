@@ -274,6 +274,10 @@
     letter-spacing: 0;
   }
 
+  body[data-dragging-idea="true"] {
+    cursor: grabbing;
+  }
+
   body::before {
     content: "";
     position: fixed;
@@ -1637,10 +1641,41 @@
     background: color-mix(in srgb, var(--developing-stage) 16%, #ffffff);
   }
 
+  .pipeline-lane[data-drop-active="true"] {
+    background: color-mix(in srgb, var(--chartreuse) 22%, var(--paper-bright));
+    box-shadow:
+      inset 0 6px 0 var(--chartreuse),
+      inset 0 0 0 3px var(--chartreuse);
+  }
+
+  .developing-drop-hint {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--chartreuse) 18%, transparent);
+  }
+
+  .developing-drop-hint p {
+    border: var(--border-rough) solid var(--ink);
+    background: var(--chartreuse);
+    padding: 8px 14px;
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--ink);
+    box-shadow: 3px 4px 0 rgba(22, 20, 28, 0.16);
+  }
+
   .idea-row {
+    --idea-handle-col: 32px;
     container-type: inline-size;
     display: grid;
     grid-template-columns:
+      var(--idea-handle-col)
       36px
       minmax(140px, 1fr)
       78px
@@ -1688,6 +1723,60 @@
     background: color-mix(in srgb, var(--raw-stage) 18%, #ffffff);
     transform: translateX(28px);
     opacity: 0;
+  }
+
+  .idea-row[data-dragging="true"] {
+    opacity: 0.38;
+    user-select: none;
+  }
+
+  .idea-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-top: 2px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: color-mix(in srgb, var(--ink) 40%, transparent);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .idea-drag-handle:hover,
+  .idea-drag-handle:focus-visible {
+    color: var(--ink);
+  }
+
+  .idea-row[data-dragging="true"] .idea-drag-handle {
+    cursor: grabbing;
+  }
+
+  .idea-drag-preview {
+    display: flex;
+    width: min(28rem, 72vw);
+    align-items: center;
+    gap: 10px;
+    border: var(--border-rough) solid color-mix(in srgb, var(--ink) 22%, transparent);
+    background: #fffdf6;
+    padding: 10px 12px;
+    box-shadow: var(--shadow-card-strong);
+    cursor: grabbing;
+  }
+
+  .idea-drag-preview-ratings {
+    display: flex;
+    flex-shrink: 0;
+    gap: 6px;
+  }
+
+  .idea-drag-preview .rating-badge {
+    width: 70px;
+    height: 30px;
+    font-size: 13px;
   }
 
   .idea-copy {
@@ -1776,12 +1865,17 @@
 
   @container (max-width: 520px) {
     .idea-row {
-      grid-template-columns: 36px minmax(0, 1fr) 32px 28px;
+      grid-template-columns:
+        var(--idea-handle-col)
+        36px
+        minmax(0, 1fr)
+        32px
+        28px;
     }
 
     .idea-ratings {
       display: flex;
-      grid-column: 2 / -2;
+      grid-column: 3 / -2;
       flex-wrap: wrap;
       gap: 6px;
     }
@@ -1793,6 +1887,12 @@
     background: #fffdf6;
     border: var(--border-rough) solid color-mix(in srgb, var(--chartreuse-ink) 35%, var(--border));
     box-shadow: var(--shadow-card);
+  }
+
+  .developing-card-ratings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .production-card {
@@ -1911,7 +2011,9 @@
     }
 
     .pipeline-lane[data-stage="developing"] {
-      transition: background-color 360ms ease;
+      transition:
+        background-color 360ms ease,
+        box-shadow 180ms ease;
     }
 
     .developing-card[data-enter="true"] {
@@ -1987,6 +2089,32 @@
   }
 
   @media (max-width: 999px) {
+    .idea-row {
+      --idea-handle-col: 0px;
+      grid-template-columns:
+        36px
+        minmax(140px, 1fr)
+        78px
+        78px
+        78px
+        32px
+        28px;
+    }
+
+    .idea-drag-handle {
+      display: none;
+    }
+
+    @container (max-width: 520px) {
+      .idea-row {
+        grid-template-columns: 36px minmax(0, 1fr) 32px 28px;
+      }
+
+      .idea-ratings {
+        grid-column: 2 / -2;
+      }
+    }
+
     .workflow-route,
     .workflow-stepper {
       display: none;

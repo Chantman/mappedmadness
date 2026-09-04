@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react"
-import { ChevronDown } from "lucide-react"
+import { useDraggable } from "@dnd-kit/core"
+import { ChevronDown, GripVertical } from "lucide-react"
 
 import { CardMenu } from "@/components/actions/card-menu"
 import { RatingBadge } from "@/components/pipeline/rating-badge"
@@ -26,11 +27,50 @@ function sortKind(sort: IdeaSort): "viral" | "difficulty" | "parts" | null {
   return null
 }
 
+export function IdeaRatingTriplet({ idea }: { idea: Idea }) {
+  const { ideaSort } = useWorkshop()
+  const active = sortKind(ideaSort)
+
+  return (
+    <>
+      <RatingBadge
+        kind="viral"
+        value={idea.scores.viralPotential.toFixed(1)}
+        active={active === "viral"}
+      />
+      <RatingBadge
+        kind="difficulty"
+        value={toDifficulty(idea.scores.simplicity).toFixed(1)}
+        active={active === "difficulty"}
+      />
+      <RatingBadge
+        kind="parts"
+        value={`${partsOwnedPercent(idea.scores.partsCoverage)}%`}
+        active={active === "parts"}
+      />
+    </>
+  )
+}
+
+export function IdeaDragPreview({ idea }: { idea: Idea }) {
+  return (
+    <div className="idea-drag-preview">
+      <p className="font-heading min-w-0 flex-1 truncate text-[16px] leading-5">
+        {idea.title}
+      </p>
+      <div className="idea-drag-preview-ratings">
+        <IdeaRatingTriplet idea={idea} />
+      </div>
+    </div>
+  )
+}
+
 export function IdeaRow({
   idea,
   rank,
   leaving,
   expanded,
+  dragEnabled = false,
   onToggle,
   onEdit,
   onPromote,
@@ -39,6 +79,7 @@ export function IdeaRow({
   rank: number
   leaving?: boolean
   expanded?: boolean
+  dragEnabled?: boolean
   onToggle: () => void
   onEdit: () => void
   onPromote: () => void
@@ -47,6 +88,11 @@ export function IdeaRow({
   const active = sortKind(ideaSort)
   const conceptRef = useRef<HTMLParagraphElement>(null)
   const [overflows, setOverflows] = useState(false)
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: idea.id,
+    data: { type: "idea", idea },
+    disabled: !dragEnabled || Boolean(leaving),
+  })
 
   useLayoutEffect(() => {
     const node = conceptRef.current
@@ -56,11 +102,25 @@ export function IdeaRow({
 
   return (
     <article
+      ref={setNodeRef}
       data-leaving={leaving ? "true" : undefined}
       data-expanded={expanded ? "true" : undefined}
+      data-dragging={isDragging ? "true" : undefined}
       className="idea-row"
       onClick={onToggle}
     >
+      {dragEnabled ? (
+        <button
+          type="button"
+          className="idea-drag-handle"
+          aria-label={`Drag ${idea.title} to Developing`}
+          onClick={(event) => event.stopPropagation()}
+          {...listeners}
+          {...attributes}
+        >
+          <GripVertical className="size-4" />
+        </button>
+      ) : null}
       <button
         type="button"
         className="col-span-2 grid grid-cols-[36px_minmax(0,1fr)] items-start gap-x-0 text-left"
@@ -89,7 +149,12 @@ export function IdeaRow({
           ) : null}
         </span>
       </button>
-      <div className="idea-ratings pt-0.5">
+      <div
+        className="idea-ratings pt-0.5"
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+        onPointerDown={(event) => event.stopPropagation()}
+      >
         <RatingBadge
           kind="viral"
           value={idea.scores.viralPotential.toFixed(1)}
@@ -111,6 +176,11 @@ export function IdeaRow({
         size="icon-xs"
         className="mt-1 text-muted-foreground"
         aria-label={expanded ? `Collapse ${idea.title}` : `Expand ${idea.title}`}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={(event) => {
+          event.stopPropagation()
+          onToggle()
+        }}
       >
         <ChevronDown
           className={cn(
@@ -123,6 +193,7 @@ export function IdeaRow({
         className="mt-1"
         onClick={(event) => event.stopPropagation()}
         onKeyDown={(event) => event.stopPropagation()}
+        onPointerDown={(event) => event.stopPropagation()}
       >
         <CardMenu
           label={`${idea.title} actions`}

@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react"
@@ -47,6 +48,7 @@ interface WorkshopContextValue {
   inventory: typeof inventory
   addIdea: (input: { title: string; concept: string }) => void
   updateIdea: (id: string, patch: Partial<Idea>) => void
+  promoteIdeaToDeveloping: (id: string) => void
   promoteIdea: (id: string) => void
   demoteProject: (id: string) => void
   updateProject: (id: string, patch: Partial<Project>) => void
@@ -79,6 +81,39 @@ function loadVersioned<T>(name: string, fallback: T): T {
   return readStorage(name, fallback)
 }
 
+function cloneIdea(idea: Idea): Idea {
+  return {
+    ...idea,
+    scores: { ...idea.scores },
+  }
+}
+
+function ideaToDevelopingProject(idea: Idea): Project {
+  const origin = cloneIdea(idea)
+  return {
+    id: origin.id,
+    title: origin.title,
+    brandId: origin.brandId,
+    stage: "developing",
+    concept: origin.concept,
+    visualId: origin.visualId,
+    imageUrl: origin.imageUrl,
+    intendedEffect: origin.concept,
+    designDecisions: "",
+    constraints: "",
+    toolsAndSkills: "",
+    partsOwned: [],
+    partsMissing: [],
+    estimatedHours: origin.estimatedHours,
+    estimatedCost: origin.estimatedCost,
+    developmentStatus: "concept",
+    newlyPromoted: true,
+    partsCoverage: origin.scores.partsCoverage * 10,
+    missingPartsCost: 0,
+    origin,
+  }
+}
+
 export function WorkshopProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<AppView>("workspace")
   const [brandId, setBrandIdState] = useState<BrandId>(() =>
@@ -99,6 +134,13 @@ export function WorkshopProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<Project[]>(() =>
     loadVersioned("projects", seedProjects),
   )
+  const ideasRef = useRef(ideas)
+  const projectsRef = useRef(projects)
+
+  useEffect(() => {
+    ideasRef.current = ideas
+    projectsRef.current = projects
+  }, [ideas, projects])
 
   useEffect(() => {
     writeStorage("data-version", DATA_VERSION)
@@ -144,38 +186,20 @@ export function WorkshopProvider({ children }: { children: ReactNode }) {
     [brandId],
   )
 
-  const promoteIdea = useCallback((id: string) => {
-    const idea = ideas.find((item) => item.id === id)
+  const promoteIdeaToDeveloping = useCallback((id: string) => {
+    const idea = ideasRef.current.find((item) => item.id === id)
     if (!idea) return
-
-    const project: Project = {
-      id: idea.id,
-      title: idea.title,
-      brandId: idea.brandId,
-      stage: "developing",
-      concept: idea.concept,
-      visualId: idea.visualId,
-      imageUrl: idea.imageUrl,
-      intendedEffect: idea.concept,
-      designDecisions: "Not recorded yet.",
-      constraints: "Not recorded yet.",
-      toolsAndSkills: "CAD, PETG printing, Pico-class firmware, filming.",
-      partsOwned: [],
-      partsMissing: [],
-      estimatedHours: idea.estimatedHours,
-      estimatedCost: idea.estimatedCost,
-      developmentStatus: "concept",
-      partsCoverage: idea.scores.partsCoverage * 10,
-      missingPartsCost: idea.estimatedCost,
-      unresolvedQuestion: "What is the first physical prototype?",
-      origin: idea,
+    if (projectsRef.current.some((item) => item.id === id)) {
+      setIdeas((current) => current.filter((item) => item.id !== id))
+      return
     }
 
+    const project = ideaToDevelopingProject(idea)
     setIdeas((current) => current.filter((item) => item.id !== id))
-    setProjects((current) =>
-      current.some((item) => item.id === id) ? current : [project, ...current],
-    )
-  }, [ideas])
+    setProjects((current) => [project, ...current])
+  }, [])
+
+  const promoteIdea = promoteIdeaToDeveloping
 
   const updateIdea = useCallback((id: string, patch: Partial<Idea>) => {
     setIdeas((current) =>
@@ -184,25 +208,27 @@ export function WorkshopProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const demoteProject = useCallback((id: string) => {
-    const project = projects.find((item) => item.id === id)
+    const project = projectsRef.current.find((item) => item.id === id)
     if (!project) return
-    const idea: Idea = project.origin ?? {
-      id: project.id,
-      title: project.title,
-      concept: project.concept,
-      brandId: project.brandId,
-      capturedAt: new Date().toISOString(),
-      visualId: project.visualId,
-      imageUrl: project.imageUrl,
-      scores: midScores(),
-      estimatedCost: project.estimatedCost,
-      estimatedHours: project.estimatedHours,
-    }
+    const idea: Idea = project.origin
+      ? cloneIdea(project.origin)
+      : {
+          id: project.id,
+          title: project.title,
+          concept: project.concept,
+          brandId: project.brandId,
+          capturedAt: new Date().toISOString(),
+          visualId: project.visualId,
+          imageUrl: project.imageUrl,
+          scores: midScores(),
+          estimatedCost: project.estimatedCost,
+          estimatedHours: project.estimatedHours,
+        }
     setProjects((current) => current.filter((item) => item.id !== id))
     setIdeas((current) =>
       current.some((item) => item.id === id) ? current : [idea, ...current],
     )
-  }, [projects])
+  }, [])
 
   const updateProject = useCallback((id: string, patch: Partial<Project>) => {
     setProjects((current) =>
@@ -299,6 +325,7 @@ export function WorkshopProvider({ children }: { children: ReactNode }) {
       inventory,
       addIdea,
       updateIdea,
+      promoteIdeaToDeveloping,
       promoteIdea,
       demoteProject,
       updateProject,
@@ -324,6 +351,7 @@ export function WorkshopProvider({ children }: { children: ReactNode }) {
       projects,
       addIdea,
       updateIdea,
+      promoteIdeaToDeveloping,
       promoteIdea,
       demoteProject,
       updateProject,

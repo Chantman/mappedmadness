@@ -3,6 +3,8 @@ import type { ReactNode } from "react"
 import { ScribbleBackdrop } from "@/components/branding/ScribbleBackdrop"
 import { HandwrittenAnnotation, InkStamp } from "@/components/studio/primitives"
 
+export const DEVELOPING_DROP_ID = "lane:developing"
+
 export function PipelineColumn({
   stage,
   count,
@@ -10,6 +12,8 @@ export function PipelineColumn({
   warning,
   toolbar,
   empty,
+  droppableRef,
+  isDropTarget,
   children,
 }: {
   stage: "ideas" | "developing" | "production" | "completed"
@@ -18,17 +22,26 @@ export function PipelineColumn({
   warning?: string
   toolbar?: ReactNode
   empty?: ReactNode
+  droppableRef?: (node: HTMLElement | null) => void
+  isDropTarget?: boolean
   children: ReactNode
 }) {
   return (
     <section
+      ref={droppableRef}
       className="pipeline-lane"
       data-stage={stage}
       data-flash={flash ? "true" : undefined}
+      data-drop-active={isDropTarget ? "true" : undefined}
     >
       {stage === "ideas" ? null : (
         <ScribbleBackdrop variant="workspace" />
       )}
+      {isDropTarget ? (
+        <div className="developing-drop-hint" aria-hidden="true">
+          <p>Drop to start developing</p>
+        </div>
+      ) : null}
       {toolbar}
       {warning ? (
         <p className="border-b border-border px-3 py-1.5 text-[12px] text-blocked">
